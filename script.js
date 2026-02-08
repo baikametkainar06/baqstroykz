@@ -152,30 +152,15 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // ===========================
-    // Image Loading with Placeholders
+    // Image Fade-in Animation
     // ===========================
-    const images = [
-        { id: 'heroImage', placeholder: 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=800&h=1000&fit=crop' },
-        { id: 'project1', placeholder: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=600&h=400&fit=crop' },
-        { id: 'project2', placeholder: 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=600&h=400&fit=crop' },
-        { id: 'project3', placeholder: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=600&h=400&fit=crop' },
-        { id: 'project4', placeholder: 'https://images.unsplash.com/photo-1582407947304-fd86f028f716?w=600&h=400&fit=crop' },
-        { id: 'project5', placeholder: 'https://images.unsplash.com/photo-1577495508326-19a1b3cf65b7?w=600&h=400&fit=crop' },
-        { id: 'project6', placeholder: 'https://images.unsplash.com/photo-1486718448742-163732cd1544?w=600&h=400&fit=crop' },
-        { id: 'testimonialImage', placeholder: 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=800&h=600&fit=crop' },
-        { id: 'authorAvatar', placeholder: 'https://i.pravatar.cc/150?img=12' }
-    ];
-
-    images.forEach(({ id, placeholder }) => {
-        const img = document.getElementById(id);
-        if (img) {
-            img.src = placeholder;
+    document.querySelectorAll('img').forEach(img => {
+        if (img.complete) {
+            img.style.opacity = '1';
+        } else {
             img.style.opacity = '0';
-            img.style.transition = 'opacity 0.5s ease';
-
-            img.onload = () => {
-                img.style.opacity = '1';
-            };
+            img.style.transition = 'opacity 0.8s ease';
+            img.onload = () => img.style.opacity = '1';
         }
     });
 
@@ -212,14 +197,98 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     // ===========================
-    // Video Play Button
+    // Video Modal Logic
     // ===========================
     const videoButton = document.querySelector('.btn-secondary');
+    const videoModal = document.getElementById('videoModal');
+    const closeVideo = document.getElementById('closeVideo');
+    const videoPlayer = document.getElementById('videoPlayer');
 
-    if (videoButton) {
+    if (videoButton && videoModal && closeVideo) {
         videoButton.addEventListener('click', function (e) {
             e.preventDefault();
-            showNotification('Бейне презентация жақында қолжетімді болады!', 'info');
+
+            // Premium Video Content (Using a high-quality architectural video as a placeholder)
+            // In production, replace this with your own video URL (YouTube, Vimeo, or direct link)
+            videoPlayer.innerHTML = `
+                <iframe width="100%" height="100%" 
+                    src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1" 
+                    title="BAQSTROY Video Presentation" 
+                    frameborder="0" 
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                    allowfullscreen>
+                </iframe>
+            `;
+
+            videoModal.style.display = 'flex';
+            setTimeout(() => videoModal.classList.add('active'), 10);
+            document.body.style.overflow = 'hidden'; // Prevent scrolling
+        });
+
+        const closeModal = () => {
+            videoModal.classList.remove('active');
+            setTimeout(() => {
+                videoModal.style.display = 'none';
+                videoPlayer.innerHTML = ''; // Stop video
+            }, 400);
+            document.body.style.overflow = '';
+        };
+
+        closeVideo.addEventListener('click', closeModal);
+        videoModal.addEventListener('click', (e) => {
+            if (e.target === videoModal) closeModal();
+        });
+
+        // Close on Escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && videoModal.classList.contains('active')) {
+                closeModal();
+            }
+        });
+    }
+
+    // ===========================
+    // Image Modal Logic (Catalog & Projects)
+    // ===========================
+    const previewBtns = document.querySelectorAll('.catalog-btn, .view-project-btn');
+    const imageModal = document.getElementById('imageModal');
+    const closeImageModal = document.getElementById('closeImageModal');
+    const fullImage = document.getElementById('fullImage');
+
+    if (previewBtns.length > 0 && imageModal && closeImageModal && fullImage) {
+        previewBtns.forEach(btn => {
+            btn.addEventListener('click', function (e) {
+                e.preventDefault();
+                const imageSrc = this.getAttribute('data-image');
+
+                if (imageSrc) {
+                    fullImage.src = imageSrc;
+                    imageModal.style.display = 'flex';
+                    setTimeout(() => imageModal.classList.add('active'), 10);
+                    document.body.style.overflow = 'hidden';
+                }
+            });
+        });
+
+        const closeImgModal = () => {
+            imageModal.classList.remove('active');
+            setTimeout(() => {
+                imageModal.style.display = 'none';
+                fullImage.src = '';
+            }, 400);
+            document.body.style.overflow = '';
+        };
+
+        closeImageModal.addEventListener('click', closeImgModal);
+        imageModal.addEventListener('click', (e) => {
+            if (e.target === imageModal) closeImgModal();
+        });
+
+        // Close on Escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && imageModal.classList.contains('active')) {
+                closeImgModal();
+            }
         });
     }
 
