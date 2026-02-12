@@ -1,811 +1,546 @@
-// ===========================
-// Smooth Scroll & Navigation
-// ===========================
-document.addEventListener('DOMContentLoaded', function () {
-    // Navbar scroll effect
-    const navbar = document.querySelector('.navbar');
-    let lastScroll = 0;
+// ===== HEADER SCROLL EFFECT =====
+const header = document.getElementById('header');
+let lastScroll = 0;
 
-    window.addEventListener('scroll', () => {
-        const currentScroll = window.pageYOffset;
+window.addEventListener('scroll', () => {
+    const currentScroll = window.pageYOffset;
 
-        if (currentScroll > 100) {
-            navbar.classList.add('scrolled');
-        } else {
-            navbar.classList.remove('scrolled');
-        }
-
-        lastScroll = currentScroll;
-    });
-
-    // Mobile menu toggle
-    const mobileMenuToggle = document.getElementById('mobileMenuToggle');
-    const navLinks = document.querySelector('.nav-links');
-
-    if (mobileMenuToggle) {
-        mobileMenuToggle.addEventListener('click', () => {
-            navLinks.classList.toggle('active');
-            mobileMenuToggle.classList.toggle('active');
-        });
+    if (currentScroll > 100) {
+        header.classList.add('scrolled');
+    } else {
+        header.classList.remove('scrolled');
     }
 
-    // Smooth scroll for navigation links
-    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-        anchor.addEventListener('click', function (e) {
-            e.preventDefault();
-            const target = document.querySelector(this.getAttribute('href'));
+    lastScroll = currentScroll;
+});
 
-            if (target) {
-                const offsetTop = target.offsetTop - 80;
-                window.scrollTo({
-                    top: offsetTop,
-                    behavior: 'smooth'
-                });
+// ===== MOBILE MENU =====
+const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+const nav = document.getElementById('nav');
 
-                // Close mobile menu if open
-                if (navLinks.classList.contains('active')) {
-                    navLinks.classList.remove('active');
-                    mobileMenuToggle.classList.remove('active');
-                }
-            }
-        });
+mobileMenuBtn.addEventListener('click', () => {
+    nav.classList.toggle('active');
+    mobileMenuBtn.classList.toggle('active');
+});
+
+// Close mobile menu when clicking on a link
+const navLinks = document.querySelectorAll('.nav-link');
+navLinks.forEach(link => {
+    link.addEventListener('click', () => {
+        nav.classList.remove('active');
+        mobileMenuBtn.classList.remove('active');
     });
+});
 
-    // ===========================
-    // Contact Form Handling
-    // ===========================
-    const contactForm = document.getElementById('contactForm');
+// ===== SMOOTH SCROLL =====
+document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+            const headerHeight = header.offsetHeight;
+            const targetPosition = target.offsetTop - headerHeight;
 
-    if (contactForm) {
-        contactForm.addEventListener('submit', function (e) {
-            e.preventDefault();
-
-            // Get form data
-            const formData = {
-                name: document.getElementById('name').value,
-                email: document.getElementById('email').value,
-                phone: document.getElementById('phone').value,
-                message: document.getElementById('message').value
-            };
-
-            // Show success message
-            showNotification('Хабарламаңыз үшін рахмет! Біз сізбен жақын арада байланысамыз.', 'success');
-
-            // Reset form
-            contactForm.reset();
-
-            // In production, you would send this data to your backend
-            console.log('Form submitted:', formData);
-        });
-    }
-
-    // ===========================
-    // Intersection Observer for Animations
-    // ===========================
-    const observerOptions = {
-        threshold: 0.1,
-        rootMargin: '0px 0px -50px 0px'
-    };
-
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                entry.target.style.opacity = '1';
-                entry.target.style.transform = 'translateY(0)';
-            }
-        });
-    }, observerOptions);
-
-    // Observe all cards and sections
-    document.querySelectorAll('.expertise-card, .project-card, .trust-feature').forEach(el => {
-        el.style.opacity = '0';
-        el.style.transform = 'translateY(30px)';
-        el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
-        observer.observe(el);
-    });
-
-    // ===========================
-    // Dynamic Stats Counter
-    // ===========================
-    const stats = document.querySelectorAll('.stat-item h3');
-    let statsAnimated = false;
-
-    const animateStats = () => {
-        if (statsAnimated) return;
-
-        stats.forEach(stat => {
-            const target = stat.textContent;
-            const number = parseInt(target.replace(/\D/g, ''));
-            const suffix = target.replace(/[0-9]/g, '');
-            const duration = 2000;
-            const increment = number / (duration / 16);
-            let current = 0;
-
-            const updateCounter = () => {
-                current += increment;
-                if (current < number) {
-                    stat.textContent = Math.floor(current) + suffix;
-                    requestAnimationFrame(updateCounter);
-                } else {
-                    stat.textContent = target;
-                }
-            };
-
-            updateCounter();
-        });
-
-        statsAnimated = true;
-    };
-
-    // Trigger stats animation when hero section is visible
-    const heroObserver = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                animateStats();
-            }
-        });
-    }, { threshold: 0.5 });
-
-    const heroSection = document.querySelector('.hero');
-    if (heroSection) {
-        heroObserver.observe(heroSection);
-    }
-
-    // ===========================
-    // Image Fade-in Animation
-    // ===========================
-    document.querySelectorAll('img').forEach(img => {
-        if (img.complete) {
-            img.style.opacity = '1';
-        } else {
-            img.style.opacity = '0';
-            img.style.transition = 'opacity 0.8s ease';
-            img.onload = () => img.style.opacity = '1';
+            window.scrollTo({
+                top: targetPosition,
+                behavior: 'smooth'
+            });
         }
     });
+});
 
-    // ===========================
-    // Project Card Hover Effects
-    // ===========================
-    const projectCards = document.querySelectorAll('.project-card');
+// ===== ACTIVE NAV LINK =====
+const sections = document.querySelectorAll('section[id]');
 
-    projectCards.forEach(card => {
-        card.addEventListener('mouseenter', function () {
-            this.style.zIndex = '10';
-        });
+window.addEventListener('scroll', () => {
+    const scrollY = window.pageYOffset;
 
-        card.addEventListener('mouseleave', function () {
-            this.style.zIndex = '1';
-        });
-    });
+    sections.forEach(section => {
+        const sectionHeight = section.offsetHeight;
+        const sectionTop = section.offsetTop - 150;
+        const sectionId = section.getAttribute('id');
 
-    // ===========================
-    // CTA Button Actions
-    // ===========================
-    const ctaButtons = document.querySelectorAll('.cta-button, .btn-primary, .btn-primary-large');
-
-    ctaButtons.forEach(button => {
-        button.addEventListener('click', function (e) {
-            if (!this.type || this.type !== 'submit') {
-                e.preventDefault();
-                const contactSection = document.getElementById('contact');
-                if (contactSection) {
-                    contactSection.scrollIntoView({ behavior: 'smooth' });
-                }
-            }
-        });
-    });
-
-    // ===========================
-    // Video Modal Logic
-    // ===========================
-    const videoButton = document.querySelector('.btn-secondary');
-    const videoModal = document.getElementById('videoModal');
-    const closeVideo = document.getElementById('closeVideo');
-    const videoPlayer = document.getElementById('videoPlayer');
-
-    if (videoButton && videoModal && closeVideo) {
-        videoButton.addEventListener('click', function (e) {
-            e.preventDefault();
-
-            // Premium Video Content (Using a high-quality architectural video as a placeholder)
-            // In production, replace this with your own video URL (YouTube, Vimeo, or direct link)
-            videoPlayer.innerHTML = `
-                <iframe width="100%" height="100%" 
-                    src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1" 
-                    title="BAQSTROY Video Presentation" 
-                    frameborder="0" 
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                    allowfullscreen>
-                </iframe>
-            `;
-
-            videoModal.style.display = 'flex';
-            setTimeout(() => videoModal.classList.add('active'), 10);
-            document.body.style.overflow = 'hidden'; // Prevent scrolling
-        });
-
-        const closeModal = () => {
-            videoModal.classList.remove('active');
-            setTimeout(() => {
-                videoModal.style.display = 'none';
-                videoPlayer.innerHTML = ''; // Stop video
-            }, 400);
-            document.body.style.overflow = '';
-        };
-
-        closeVideo.addEventListener('click', closeModal);
-        videoModal.addEventListener('click', (e) => {
-            if (e.target === videoModal) closeModal();
-        });
-
-        // Close on Escape key
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape' && videoModal.classList.contains('active')) {
-                closeModal();
-            }
-        });
-    }
-
-    // ===========================
-    // Image Modal Logic (Catalog & Projects)
-    // ===========================
-    const previewBtns = document.querySelectorAll('.catalog-btn, .view-project-btn');
-    const imageModal = document.getElementById('imageModal');
-    const closeImageModal = document.getElementById('closeImageModal');
-    const fullImage = document.getElementById('fullImage');
-
-    if (previewBtns.length > 0 && imageModal && closeImageModal && fullImage) {
-        previewBtns.forEach(btn => {
-            btn.addEventListener('click', function (e) {
-                e.preventDefault();
-                const imageSrc = this.getAttribute('data-image');
-
-                if (imageSrc) {
-                    fullImage.src = imageSrc;
-                    imageModal.style.display = 'flex';
-                    setTimeout(() => imageModal.classList.add('active'), 10);
-                    document.body.style.overflow = 'hidden';
+        if (scrollY > sectionTop && scrollY <= sectionTop + sectionHeight) {
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === `#${sectionId}`) {
+                    link.classList.add('active');
                 }
             });
-        });
-
-        const closeImgModal = () => {
-            imageModal.classList.remove('active');
-            setTimeout(() => {
-                imageModal.style.display = 'none';
-                fullImage.src = '';
-            }, 400);
-            document.body.style.overflow = '';
-        };
-
-        closeImageModal.addEventListener('click', closeImgModal);
-        imageModal.addEventListener('click', (e) => {
-            if (e.target === imageModal) closeImgModal();
-        });
-
-        // Close on Escape key
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape' && imageModal.classList.contains('active')) {
-                closeImgModal();
-            }
-        });
-    }
-
-    // ===========================
-    // Notification System
-    // ===========================
-    function showNotification(message, type = 'success') {
-        // Remove existing notification if any
-        const existingNotification = document.querySelector('.notification');
-        if (existingNotification) {
-            existingNotification.remove();
         }
+    });
+});
 
-        // Create notification element
-        const notification = document.createElement('div');
-        notification.className = `notification notification-${type}`;
-        notification.innerHTML = `
-            <div class="notification-content">
-                <span class="notification-icon">${type === 'success' ? '✓' : 'ℹ'}</span>
-                <span class="notification-message">${message}</span>
+// ===== PRODUCT MODAL =====
+const productData = {
+    'blok-haus': {
+        title: 'Блок хаус',
+        description: 'Металлический сайдинг с имитацией бревна. Создает эффект натурального деревянного дома, сочетая эстетику дерева с долговечностью металла.',
+        specs: {
+            'Вид': 'Блок хаус',
+            'Направление': 'Горизонтальное',
+            'Материал': 'Оцинкованная сталь',
+            'Поверхность': 'Текстурированная',
+            'Рисунок': 'Имитация бревна',
+            'Длина': 'До 6000 мм',
+            'Ширина': '240 мм',
+            'Толщина': '0.4-0.5 мм',
+            'Покрытие': 'Полимерное',
+            'Гарантия': '25 лет'
+        },
+        features: [
+            'Реалистичная имитация натурального дерева',
+            'Устойчивость к коррозии и выцветанию',
+            'Простота монтажа',
+            'Не требует покраски и специального ухода',
+            'Пожаробезопасность',
+            'Экологичность'
+        ]
+    },
+    'l-brus': {
+        title: 'Сайдинг «L-брус»',
+        description: 'Современный профиль металлосайдинга, универсальное решение для облицовки любого фасада. Подходит для вертикального и горизонтального монтажа.',
+        specs: {
+            'Вид': 'L-брус',
+            'Направление': 'Вертикальное, горизонтальное',
+            'Материал': 'Оцинкованная сталь',
+            'Поверхность': 'Матовая',
+            'Рисунок': 'Однотонный',
+            'Длина': 'До 6000 мм',
+            'Ширина': '240 мм',
+            'Толщина': '0.4 мм',
+            'Покрытие': 'Полимерное',
+            'Гарантия': '25 лет'
+        },
+        features: [
+            'Универсальность применения',
+            'Широкая цветовая гамма',
+            'Высокая прочность',
+            'Устойчивость к температурным перепадам',
+            'Легкий вес',
+            'Долговечность'
+        ]
+    },
+    'ral-7004': {
+        title: 'RAL-7004 Светло-серый',
+        description: 'Классический светло-серый цвет, идеально подходит для современных зданий. Нейтральный оттенок гармонично сочетается с любой архитектурой.',
+        specs: {
+            'Вид': 'L-брус',
+            'Направление': 'Вертикальное, горизонтальное',
+            'Материал': 'Металл',
+            'Поверхность': 'Гладкая',
+            'Рисунок': 'Однотонный',
+            'Длина': 'До 6000 мм',
+            'Ширина': '240 мм',
+            'Толщина': '0.4 мм',
+            'Цвет': 'RAL-7004 Светло-серый',
+            'Гарантия': '25 лет'
+        },
+        features: [
+            'Универсальный цвет',
+            'Не выгорает на солнце',
+            'Легко комбинируется с другими цветами',
+            'Подходит для любого стиля',
+            'Визуально увеличивает пространство'
+        ]
+    },
+    'ral-8019': {
+        title: 'RAL-8019 Шоколад',
+        description: 'Элегантный темно-коричневый оттенок премиум класса. Создает респектабельный и солидный внешний вид здания.',
+        specs: {
+            'Вид': 'L-брус',
+            'Направление': 'Вертикальное, горизонтальное',
+            'Материал': 'Металл',
+            'Поверхность': 'Матовая',
+            'Рисунок': 'Однотонный',
+            'Длина': 'До 6000 мм',
+            'Ширина': '240 мм',
+            'Толщина': '0.4 мм',
+            'Цвет': 'RAL-8019 Темно-коричневый (шоколад)',
+            'Гарантия': '25 лет'
+        },
+        features: [
+            'Премиум внешний вид',
+            'Отлично сочетается с натуральными материалами',
+            'Скрывает небольшие загрязнения',
+            'Создает уютную атмосферу',
+            'Популярный выбор для частных домов'
+        ]
+    },
+    'ral-1015': {
+        title: 'RAL-1015 Светло-бежевый',
+        description: 'Теплый бежевый оттенок для создания уютного внешнего вида. Идеален для классических и традиционных архитектурных стилей.',
+        specs: {
+            'Вид': 'L-брус',
+            'Направление': 'Вертикальное, горизонтальное',
+            'Материал': 'Металл',
+            'Поверхность': 'Матовая',
+            'Рисунок': 'Однотонный',
+            'Длина': 'До 6000 мм',
+            'Ширина': '240 мм',
+            'Толщина': '0.4 мм',
+            'Цвет': 'RAL-1015 Светло-бежевый',
+            'Гарантия': '25 лет'
+        },
+        features: [
+            'Теплый и уютный оттенок',
+            'Визуально смягчает архитектуру',
+            'Хорошо отражает свет',
+            'Подходит для южных регионов',
+            'Классический выбор'
+        ]
+    },
+    'ral-9003': {
+        title: 'RAL-9003 Белый',
+        description: 'Чистый белый цвет для минималистичного дизайна. Создает ощущение чистоты, простора и современности.',
+        specs: {
+            'Вид': 'L-брус',
+            'Направление': 'Вертикальное, горизонтальное',
+            'Материал': 'Металл',
+            'Поверхность': 'Матовая',
+            'Рисунок': 'Однотонный',
+            'Длина': 'До 6000 мм',
+            'Ширина': '240 мм',
+            'Толщина': '0.4 мм',
+            'Цвет': 'RAL-9003 Белый',
+            'Гарантия': '25 лет'
+        },
+        features: [
+            'Визуально увеличивает здание',
+            'Отражает солнечные лучи',
+            'Современный и стильный',
+            'Универсальность применения',
+            'Подходит для минимализма'
+        ]
+    },
+    'wood-3d': {
+        title: '3D Дерево',
+        description: 'Реалистичная имитация натурального дерева с 3D эффектом. Передает текстуру и рельеф настоящего дерева.',
+        specs: {
+            'Вид': 'L-брус',
+            'Направление': 'Вертикальное, горизонтальное',
+            'Материал': 'Металл',
+            'Поверхность': 'Текстурированная 3D',
+            'Рисунок': 'Имитация дерева',
+            'Длина': 'До 6000 мм',
+            'Ширина': '240 мм',
+            'Толщина': '0.4 мм',
+            'Цвет': 'Деревянный (натуральный)',
+            'Гарантия': '25 лет'
+        },
+        features: [
+            'Реалистичная 3D текстура',
+            'Эффект натурального дерева',
+            'Не требует обработки как дерево',
+            'Устойчивость к влаге и насекомым',
+            'Долговечность металла',
+            'Эстетика дерева'
+        ]
+    },
+    'mahogany': {
+        title: 'Дерево Махагон',
+        description: 'Премиальная текстура красного дерева. Роскошный внешний вид для эксклюзивных проектов.',
+        specs: {
+            'Вид': 'L-брус',
+            'Направление': 'Вертикальное, горизонтальное',
+            'Материал': 'Металл',
+            'Поверхность': 'Текстурированная',
+            'Рисунок': 'Имитация красного дерева',
+            'Длина': 'До 6000 мм',
+            'Ширина': '240 мм',
+            'Толщина': '0.4 мм',
+            'Цвет': 'Красное дерево (махагон)',
+            'Гарантия': '25 лет'
+        },
+        features: [
+            'Премиум класс',
+            'Роскошный внешний вид',
+            'Имитация ценных пород дерева',
+            'Эксклюзивность',
+            'Статусность',
+            'Долговечность'
+        ]
+    }
+};
+
+function openProductModal(productId) {
+    const modal = document.getElementById('productModal');
+    const modalBody = document.getElementById('modalBody');
+    const product = productData[productId];
+
+    if (!product) return;
+
+    let specsHTML = '';
+    for (const [key, value] of Object.entries(product.specs)) {
+        specsHTML += `
+            <div class="spec-row">
+                <span class="spec-key">${key}:</span>
+                <span class="spec-value">${value}</span>
             </div>
         `;
+    }
 
-        // Add styles
-        notification.style.cssText = `
-            position: fixed;
-            top: 100px;
-            right: 24px;
-            background: ${type === 'success' ? '#10B981' : '#3B82F6'};
-            color: white;
-            padding: 16px 24px;
-            border-radius: 12px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-            z-index: 10000;
-            animation: slideInRight 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            max-width: 400px;
+    let featuresHTML = '';
+    product.features.forEach(feature => {
+        featuresHTML += `
+            <li class="feature-item">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="20 6 9 17 4 12"/>
+                </svg>
+                ${feature}
+            </li>
         `;
+    });
 
-        document.body.appendChild(notification);
-
-        // Auto remove after 5 seconds
-        setTimeout(() => {
-            notification.style.animation = 'slideOutRight 0.3s ease';
-            setTimeout(() => notification.remove(), 300);
-        }, 5000);
-    }
-
-    // Add notification animations to document
-    const style = document.createElement('style');
-    style.textContent = `
-        @keyframes slideInRight {
-            from {
-                transform: translateX(400px);
-                opacity: 0;
-            }
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
-        }
+    modalBody.innerHTML = `
+        <h2 class="modal-title">${product.title}</h2>
+        <p class="modal-description">${product.description}</p>
         
-        @keyframes slideOutRight {
-            from {
-                transform: translateX(0);
-                opacity: 1;
-            }
-            to {
-                transform: translateX(400px);
-                opacity: 0;
-            }
-        }
-
-        .notification-content {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .notification-icon {
-            font-size: 20px;
-            font-weight: bold;
-        }
-
-        .notification-message {
-            font-size: 15px;
-            font-weight: 500;
-        }
+        <div class="modal-section">
+            <h3 class="modal-section-title">Технические характеристики</h3>
+            <div class="specs-list">
+                ${specsHTML}
+            </div>
+        </div>
+        
+        <div class="modal-section">
+            <h3 class="modal-section-title">Преимущества</h3>
+            <ul class="features-list">
+                ${featuresHTML}
+            </ul>
+        </div>
+        
+        <div class="modal-actions">
+            <a href="https://wa.me/77717373783?text=Здравствуйте! Интересует ${product.title}" class="btn btn-primary btn-large" target="_blank">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+                </svg>
+                Заказать в WhatsApp
+            </a>
+            <a href="tel:+77717373783" class="btn btn-secondary btn-large">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+                </svg>
+                Позвонить
+            </a>
+        </div>
     `;
-    document.head.appendChild(style);
 
-    // ===========================
-    // Phone Number Formatting
-    // ===========================
-    const phoneInput = document.getElementById('phone');
-
-    if (phoneInput) {
-        phoneInput.addEventListener('input', function (e) {
-            let value = e.target.value.replace(/\D/g, '');
-
-            if (value.length > 0) {
-                if (value[0] === '8' || value[0] === '7') {
-                    value = '7' + value.substring(1);
-                }
-
-                let formatted = '+7';
-                if (value.length > 1) {
-                    formatted += ' (' + value.substring(1, 4);
-                }
-                if (value.length >= 5) {
-                    formatted += ') ' + value.substring(4, 7);
-                }
-                if (value.length >= 8) {
-                    formatted += '-' + value.substring(7, 9);
-                }
-                if (value.length >= 10) {
-                    formatted += '-' + value.substring(9, 11);
-                }
-
-                e.target.value = formatted;
+    // Add modal styles
+    if (!document.getElementById('modal-styles')) {
+        const style = document.createElement('style');
+        style.id = 'modal-styles';
+        style.textContent = `
+            .modal-title {
+                font-family: var(--font-heading);
+                font-size: 2rem;
+                font-weight: 800;
+                margin-bottom: var(--spacing-md);
+                color: var(--text-primary);
             }
-        });
-    }
-
-    // ===========================
-    // Parallax Effect for Hero
-    // ===========================
-    window.addEventListener('scroll', () => {
-        const scrolled = window.pageYOffset;
-        const heroImage = document.querySelector('.hero-image');
-
-        if (heroImage && scrolled < window.innerHeight) {
-            heroImage.style.transform = `translateY(${scrolled * 0.3}px)`;
-        }
-    });
-
-    // ===========================
-    // Loading Animation
-    // ===========================
-    window.addEventListener('load', () => {
-        document.body.style.opacity = '0';
-        document.body.style.transition = 'opacity 0.5s ease';
-
-        setTimeout(() => {
-            document.body.style.opacity = '1';
-        }, 100);
-    });
-
-    // ===========================
-    // Project Modal Logic
-    // ===========================
-    const projectModal = document.getElementById('projectModal');
-    const closeProjectModal = document.getElementById('closeProjectModal');
-    const projectForm = document.getElementById('projectForm');
-    const projectButtons = document.querySelectorAll('.btn-primary');
-    const projectPhoneInput = document.getElementById('projectPhone');
-
-    // Open project modal when "Узнать подробнее" buttons are clicked
-    projectButtons.forEach(button => {
-        button.addEventListener('click', function (e) {
-            e.preventDefault();
-            projectModal.style.display = 'flex';
-            setTimeout(() => projectModal.classList.add('active'), 10);
-            document.body.style.overflow = 'hidden';
-        });
-    });
-
-    // Close project modal
-    const closeProjectModalFunc = () => {
-        projectModal.classList.remove('active');
-        setTimeout(() => {
-            projectModal.style.display = 'none';
-        }, 300);
-        document.body.style.overflow = '';
-    };
-
-    if (closeProjectModal) {
-        closeProjectModal.addEventListener('click', closeProjectModalFunc);
-    }
-
-    // Close on background click
-    if (projectModal) {
-        projectModal.addEventListener('click', (e) => {
-            if (e.target === projectModal) closeProjectModalFunc();
-        });
-    }
-
-    // Close on Escape key
-    document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && projectModal.classList.contains('active')) {
-            closeProjectModalFunc();
-        }
-    });
-
-    // Phone number formatting for project form
-    if (projectPhoneInput) {
-        projectPhoneInput.addEventListener('input', function (e) {
-            let value = e.target.value.replace(/\D/g, '');
-
-            if (value.length > 0) {
-                if (value[0] === '8' || value[0] === '7') {
-                    value = '7' + value.substring(1);
-                }
-
-                let formatted = '+7';
-                if (value.length > 1) {
-                    formatted += ' (' + value.substring(1, 4);
-                }
-                if (value.length >= 5) {
-                    formatted += ') ' + value.substring(4, 7);
-                }
-                if (value.length >= 8) {
-                    formatted += '-' + value.substring(7, 9);
-                }
-                if (value.length >= 10) {
-                    formatted += '-' + value.substring(9, 11);
-                }
-
-                e.target.value = formatted;
+            
+            .modal-description {
+                font-size: 1.125rem;
+                color: var(--text-secondary);
+                line-height: 1.8;
+                margin-bottom: var(--spacing-xl);
             }
-        });
-    }
-
-    // Handle project form submission
-    if (projectForm) {
-        projectForm.addEventListener('submit', function (e) {
-            e.preventDefault();
-
-            // Get form data
-            const formData = {
-                name: document.getElementById('projectName').value,
-                surname: document.getElementById('projectSurname').value,
-                phone: document.getElementById('projectPhone').value,
-                city: document.getElementById('projectCity').value,
-                timestamp: new Date().toISOString()
-            };
-
-            // Save to localStorage (database simulation)
-            saveToDatabase(formData);
-
-            // Send to WhatsApp
-            sendToWhatsApp(formData);
-
-            // Show success notification
-            showNotification('Спасибо! Ваша заявка отправлена. Мы свяжемся с вами в ближайшее время.', 'success');
-
-            // Reset form and close modal
-            projectForm.reset();
-            closeProjectModalFunc();
-        });
-    }
-
-    // Save data to localStorage (database simulation)
-    function saveToDatabase(data) {
-        try {
-            // Get existing data
-            let projectRequests = JSON.parse(localStorage.getItem('projectRequests')) || [];
-
-            // Add new request
-            projectRequests.push(data);
-
-            // Save back to localStorage
-            localStorage.setItem('projectRequests', JSON.stringify(projectRequests));
-
-            console.log('✅ Данные сохранены в базу:', data);
-            console.log('📊 Всего заявок в базе:', projectRequests.length);
-        } catch (error) {
-            console.error('❌ Ошибка сохранения в базу:', error);
-        }
-    }
-
-    // Send data to WhatsApp
-    function sendToWhatsApp(data) {
-        // Format message for WhatsApp
-        const message = `🏗️ *Новая заявка BAQSTROY*\n\n` +
-            `👤 Имя: ${data.name}\n` +
-            `👤 Фамилия: ${data.surname}\n` +
-            `📱 Телефон: ${data.phone}\n` +
-            `🏙️ Город: ${data.city}\n` +
-            `📅 Дата: ${new Date(data.timestamp).toLocaleString('ru-RU')}`;
-
-        // WhatsApp phone number (replace with your actual WhatsApp number)
-        // Format: country code + number without + or spaces
-        const whatsappNumber = '77086144299'; // Baqstroy WhatsApp number
-
-        // Create WhatsApp URL
-        const whatsappURL = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
-
-        // Open WhatsApp in new tab
-        window.open(whatsappURL, '_blank');
-
-        console.log('📱 Отправка в WhatsApp:', whatsappURL);
-    }
-
-    // Function to view all saved requests (for admin/debugging)
-    window.viewAllRequests = function () {
-        const requests = JSON.parse(localStorage.getItem('projectRequests')) || [];
-        console.log('📊 Все заявки в базе данных:', requests);
-        console.table(requests);
-        return requests;
-    };
-
-    // Function to clear all requests (for admin/debugging)
-    window.clearAllRequests = function () {
-        localStorage.removeItem('projectRequests');
-        console.log('🗑️ База данных очищена');
-    };
-
-    // ===========================
-    // Gallery Carousel Logic
-    // ===========================
-    const galleryModal = document.getElementById('galleryModal');
-    const closeGallery = document.getElementById('closeGallery');
-    const galleryPrev = document.getElementById('galleryPrev');
-    const galleryNext = document.getElementById('galleryNext');
-    const galleryImage = document.getElementById('galleryImage');
-    const galleryTitle = document.getElementById('galleryTitle');
-    const galleryDescription = document.getElementById('galleryDescription');
-    const currentSlide = document.getElementById('currentSlide');
-    const totalSlides = document.getElementById('totalSlides');
-    const galleryThumbnails = document.getElementById('galleryThumbnails');
-
-    // Gallery data for different categories
-    const galleryData = {
-        facade: {
-            title: 'Фасадные панели',
-            description: 'Алюминиевые сэндвич-панели для облицовки фасадов зданий. Прочность, долговечность и современный дизайн.',
-            images: [
-                'images/facade-panel1.png',
-                'images/facade-panel2.png',
-                'images/facade-panel3.png',
-                'images/facade-panel4.png',
-                'images/facade-panel5.png'
-            ]
-        },
-        roof: {
-            title: 'Кровельные панели',
-            description: 'Прочные панели для кровли с повышенной несущей способностью. Влагостойкие и долговечные.',
-            images: [
-                'images/roof-panel1.png',
-                'images/roof-panel2.png',
-                'images/roof-panel3.png',
-                'images/roof-panel4.png'
-            ]
-        },
-        wall: {
-            title: 'Стеновые панели',
-            description: 'Универсальные панели для внутренних и наружных стен. Легкий монтаж и отличная теплоизоляция.',
-            images: [
-                'images/wall-panel1.png',
-                'images/wall-panel2.png',
-                'images/wall-panel3.png',
-                'images/wall-panel4.png'
-            ]
-        },
-        decorative: {
-            title: 'Декоративные панели',
-            description: 'Панели с уникальными текстурами и покрытиями. Имитация камня, дерева, индивидуальный дизайн.',
-            images: [
-                'images/decorative-panel1.png',
-                'images/decorative-panel2.png',
-                'images/decorative-panel3.png',
-                'images/decorative-panel4.png',
-                'images/decorative-panel5.png'
-            ]
-        },
-        cold: {
-            title: 'Холодильные панели',
-            description: 'Специальные панели для холодильных камер и морозильников. Повышенная изоляция и гигиеничное покрытие.',
-            images: [
-                'images/cold-panel1.png',
-                'images/cold-panel2.png',
-                'images/cold-panel3.png'
-            ]
-        },
-        fire: {
-            title: 'Противопожарные панели',
-            description: 'Огнестойкие панели для объектов с повышенными требованиями безопасности. Класс огнестойкости EI 45-120.',
-            images: [
-                'images/fire-panel1.png',
-                'images/fire-panel2.png',
-                'images/fire-panel3.png',
-                'images/fire-panel4.png'
-            ]
-        }
-    };
-
-    let currentCategory = 'facade';
-    let currentIndex = 0;
-
-    // Open gallery when catalog buttons are clicked
-    const catalogButtons = document.querySelectorAll('.catalog-btn');
-    catalogButtons.forEach(button => {
-        button.addEventListener('click', function (e) {
-            e.preventDefault();
-            const category = this.getAttribute('data-category');
-            if (category && galleryData[category]) {
-                openGallery(category);
+            
+            .modal-section {
+                margin-bottom: var(--spacing-xl);
             }
-        });
-    });
-
-    function openGallery(category) {
-        currentCategory = category;
-        currentIndex = 0;
-        updateGallery();
-        generateThumbnails();
-        galleryModal.style.display = 'flex';
-        setTimeout(() => galleryModal.classList.add('active'), 10);
-        document.body.style.overflow = 'hidden';
-    }
-
-    function closeGalleryFunc() {
-        galleryModal.classList.remove('active');
-        setTimeout(() => {
-            galleryModal.style.display = 'none';
-        }, 300);
-        document.body.style.overflow = '';
-    }
-
-    function updateGallery() {
-        const data = galleryData[currentCategory];
-        if (!data) return;
-
-        galleryImage.src = data.images[currentIndex];
-        galleryTitle.textContent = data.title;
-        galleryDescription.textContent = data.description;
-        currentSlide.textContent = currentIndex + 1;
-        totalSlides.textContent = data.images.length;
-
-        // Update active thumbnail
-        const thumbnails = galleryThumbnails.querySelectorAll('.gallery-thumbnail');
-        thumbnails.forEach((thumb, index) => {
-            if (index === currentIndex) {
-                thumb.classList.add('active');
-            } else {
-                thumb.classList.remove('active');
+            
+            .modal-section-title {
+                font-family: var(--font-heading);
+                font-size: 1.5rem;
+                font-weight: 700;
+                margin-bottom: var(--spacing-md);
+                color: var(--text-primary);
             }
-        });
-    }
-
-    function generateThumbnails() {
-        const data = galleryData[currentCategory];
-        if (!data) return;
-
-        galleryThumbnails.innerHTML = '';
-        data.images.forEach((img, index) => {
-            const thumb = document.createElement('div');
-            thumb.className = 'gallery-thumbnail';
-            if (index === 0) thumb.classList.add('active');
-
-            const thumbImg = document.createElement('img');
-            thumbImg.src = img;
-            thumbImg.alt = `${data.title} ${index + 1}`;
-
-            thumb.appendChild(thumbImg);
-            thumb.addEventListener('click', () => {
-                currentIndex = index;
-                updateGallery();
-            });
-
-            galleryThumbnails.appendChild(thumb);
-        });
-    }
-
-    function nextSlide() {
-        const data = galleryData[currentCategory];
-        if (!data) return;
-
-        currentIndex = (currentIndex + 1) % data.images.length;
-        updateGallery();
-    }
-
-    function prevSlide() {
-        const data = galleryData[currentCategory];
-        if (!data) return;
-
-        currentIndex = (currentIndex - 1 + data.images.length) % data.images.length;
-        updateGallery();
-    }
-
-    // Event listeners
-    if (closeGallery) {
-        closeGallery.addEventListener('click', closeGalleryFunc);
-    }
-
-    if (galleryPrev) {
-        galleryPrev.addEventListener('click', prevSlide);
-    }
-
-    if (galleryNext) {
-        galleryNext.addEventListener('click', nextSlide);
-    }
-
-    // Close on background click
-    if (galleryModal) {
-        galleryModal.addEventListener('click', (e) => {
-            if (e.target === galleryModal) closeGalleryFunc();
-        });
-    }
-
-    // Keyboard navigation
-    document.addEventListener('keydown', (e) => {
-        if (galleryModal.classList.contains('active')) {
-            if (e.key === 'Escape') {
-                closeGalleryFunc();
-            } else if (e.key === 'ArrowLeft') {
-                prevSlide();
-            } else if (e.key === 'ArrowRight') {
-                nextSlide();
+            
+            .specs-list {
+                background: var(--bg-secondary);
+                border-radius: var(--radius-md);
+                padding: var(--spacing-lg);
             }
-        }
-    });
+            
+            .spec-row {
+                display: flex;
+                justify-content: space-between;
+                padding: var(--spacing-sm) 0;
+                border-bottom: 1px solid var(--border-color);
+            }
+            
+            .spec-row:last-child {
+                border-bottom: none;
+            }
+            
+            .spec-key {
+                font-weight: 600;
+                color: var(--text-secondary);
+            }
+            
+            .spec-value {
+                color: var(--text-primary);
+                font-weight: 500;
+            }
+            
+            .features-list {
+                list-style: none;
+                display: grid;
+                gap: var(--spacing-md);
+            }
+            
+            .feature-item {
+                display: flex;
+                align-items: center;
+                gap: var(--spacing-sm);
+                font-size: 1rem;
+                color: var(--text-secondary);
+            }
+            
+            .feature-item svg {
+                color: var(--primary-color);
+                flex-shrink: 0;
+            }
+            
+            .modal-actions {
+                display: flex;
+                gap: var(--spacing-md);
+                margin-top: var(--spacing-xl);
+                flex-wrap: wrap;
+            }
+            
+            .modal-actions .btn {
+                flex: 1;
+                min-width: 200px;
+            }
+            
+            @media (max-width: 768px) {
+                .modal-actions {
+                    flex-direction: column;
+                }
+                
+                .modal-actions .btn {
+                    width: 100%;
+                }
+                
+                .spec-row {
+                    flex-direction: column;
+                    gap: var(--spacing-xs);
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    }
 
-    console.log('🏗️ BAQSTROY сайты сәтті жүктелді!');
-    console.log('💡 Для просмотра всех заявок введите: viewAllRequests()');
-    console.log('💡 Для очистки базы данных введите: clearAllRequests()');
+    modal.classList.add('active');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeProductModal() {
+    const modal = document.getElementById('productModal');
+    modal.classList.remove('active');
+    document.body.style.overflow = '';
+}
+
+// Close modal on Escape key
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+        closeProductModal();
+    }
 });
+
+// ===== CONTACT FORM =====
+const contactForm = document.getElementById('contactForm');
+
+contactForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+
+    const name = document.getElementById('name').value;
+    const city = document.getElementById('city').value;
+    const phone = document.getElementById('phone').value;
+    const message = document.getElementById('message').value;
+
+    // Create WhatsApp message
+    let whatsappMessage = `Здравствуйте! Меня зовут ${name}.%0A`;
+    whatsappMessage += `Город/Село: ${city}%0A`;
+    whatsappMessage += `Мой телефон: ${phone}%0A`;
+    if (message) {
+        whatsappMessage += `Сообщение: ${message}`;
+    }
+
+    // Open WhatsApp
+    window.open(`https://wa.me/77717373783?text=${whatsappMessage}`, '_blank');
+
+    // Reset form
+    contactForm.reset();
+
+    // Show success message
+    alert('Спасибо за обращение! Мы свяжемся с вами в ближайшее время.');
+});
+
+// ===== INTERSECTION OBSERVER FOR ANIMATIONS =====
+const observerOptions = {
+    threshold: 0.1,
+    rootMargin: '0px 0px -50px 0px'
+};
+
+const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            entry.target.style.opacity = '1';
+            entry.target.style.transform = 'translateY(0)';
+        }
+    });
+}, observerOptions);
+
+// Observe elements
+document.querySelectorAll('.product-card, .advantage-card, .contact-method').forEach(el => {
+    el.style.opacity = '0';
+    el.style.transform = 'translateY(30px)';
+    el.style.transition = 'opacity 0.6s ease-out, transform 0.6s ease-out';
+    observer.observe(el);
+});
+
+// ===== PHONE NUMBER FORMATTING =====
+const phoneInput = document.getElementById('phone');
+
+phoneInput.addEventListener('input', (e) => {
+    let value = e.target.value.replace(/\D/g, '');
+
+    if (value.length > 0) {
+        if (value[0] === '8') {
+            value = '7' + value.slice(1);
+        }
+        if (value[0] !== '7') {
+            value = '7' + value;
+        }
+    }
+
+    let formatted = '+';
+    if (value.length > 0) {
+        formatted += value.substring(0, 1);
+    }
+    if (value.length > 1) {
+        formatted += ' (' + value.substring(1, 4);
+    }
+    if (value.length > 4) {
+        formatted += ') ' + value.substring(4, 7);
+    }
+    if (value.length > 7) {
+        formatted += '-' + value.substring(7, 9);
+    }
+    if (value.length > 9) {
+        formatted += '-' + value.substring(9, 11);
+    }
+
+    e.target.value = formatted;
+});
+
+// ===== LOADING ANIMATION =====
+window.addEventListener('load', () => {
+    document.body.classList.add('loaded');
+});
+
+console.log('🚀 Baqstroy.kz - Металлический сайдинг премиум качества');
